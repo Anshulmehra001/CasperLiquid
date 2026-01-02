@@ -1,0 +1,21 @@
+[package]
+name = "casper-liquid"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+odra = "1.0"
+casper-types = "4.0"
+casper-contract = "4.0"
+casper-engine-test-support = "4.0"
+dotenv = "0.15"
+
+[dev-dependencies]
+proptest = "1.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "casper-liquid"
+path = "bin/main.rs"

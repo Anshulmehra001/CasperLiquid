@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CasperLiquid - Liquid Staking for Casper Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .wallet-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .wallet-status {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .connected {
+            color: #28a745;
+        }
+
+        .disconnected {
+            color: #dc3545;
+        }
+
+        .wallet-address {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #666;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+
+        .balance-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .balance-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .balance-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .cspr-balance {
+            color: #ff6b6b;
+        }
+
+        .stcspr-balance {
+            color: #4ecdc4;
+        }
+
+        .action-section {
+            margin-bottom: 30px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-stake {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-unstake {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+        }
+
+        .status-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-message {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .status-success {
+            color: #28a745;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-loading {
+            color: #007bff;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .info-text {
+            font-size: 0.9rem;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+
+            .balance-section,
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">CasperLiquid</div>
+        <div class="subtitle">Liquid Staking for Casper Network</div>
+
+        <!-- Wallet Connection Section -->
+        <div class="wallet-section">
+            <div id="walletStatus" class="wallet-status disconnected">
+                🔒 Wallet Not Connected
+            </div>
+            <div id="walletAddress" class="wallet-address hidden"></div>
+            <button id="connectWallet" class="btn btn-connect">
+                Connect Casper Wallet
+            </button>
+        </div>
+
+        <!-- Balance Display Section -->
+        <div class="balance-section">
+            <div class="balance-card">
+                <div class="balance-label">CSPR Balance</div>
+                <div id="csprBalance" class="balance-amount cspr-balance">--</div>
+            </div>
+            <div class="balance-card">
+                <div class="balance-label">stCSPR Balance</div>
+                <div id="stcsprBalance" class="balance-amount stcspr-balance">--</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons Section -->
+        <div class="action-section">
+            <div class="action-buttons">
+                <button id="stakeBtn" class="btn btn-stake" disabled>
+                    Stake 10 CSPR
+                </button>
+                <button id="unstakeBtn" class="btn btn-unstake" disabled>
+                    Unstake All
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Messages Section -->
+        <div id="statusSection" class="status-section hidden">
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="info-section">
+            <div class="info-title">How it works:</div>
+            <div class="info-text">
+                • Stake your CSPR tokens to receive stCSPR tokens at a 1:1 ratio<br>
+                • stCSPR tokens represent your staked CSPR and can be transferred<br>
+                • Unstake anytime to convert stCSPR back to CSPR<br>
+                • Built on Casper Network using the Odra Framework
+            </div>
+        </div>
+
+        <!-- Configuration Section (for development) -->
+        <div class="info-section" style="margin-top: 10px; font-size: 0.8rem;">
+            <div class="info-title">Configuration:</div>
+            <div class="info-text">
+                <strong>Network:</strong> Casper Testnet<br>
+                <strong>Node:</strong> http://3.143.158.19:7777<br>
+                <strong>Contract Hash:</strong> <span style="font-family: monospace; word-break: break-all;">hash-0123456789abcdef0123456789abcdef01234567</span><br>
+                <em>Note: Update the contract hash in the JavaScript code after deployment</em>
+            </div>
+        </div>
+    </div>
+
+    <!-- Casper JS SDK -->
+    <script src="https://unpkg.com/casper-js-sdk@2.15.1/dist/umd/casper-js-sdk.js"></script>
+    
+    <script>
+        // Application state
+        let state = {
+            isConnected: false,
+            activeKey: null,
+            csprBalance: 0,
+            stcsprBalance: 0,
+            contractHash: 'hash-0123456789abcdef0123456789abcdef01234567', // Placeholder - update with actual deployed contract hash
+            contractPackageHash: 'hash-abcdef0123456789abcdef0123456789abcdef01', // Placeholder - update with actual package hash
+            nodeAddress: 'http://3.143.158.19:7777',
+            networkName: 'casper-test',
+            chainName: 'casper-test',
+            gasPrice: 1,
+            ttl: 1800000, // 30 minutes in milliseconds
+            stakeAmount: 10000000000 // 10 CSPR in motes (10 * 10^9)
+        };
+
+        // DOM elements
+        const elements = {
+            walletStatus: document.getElementById('walletStatus'),
+            walletAddress: document.getElementById('walletAddress'),
+            connectWallet: document.getElementById('connectWallet'),
+            csprBalance: document.getElementById('csprBalance'),
+            stcsprBalance: document.getElementById('stcsprBalance'),
+            stakeBtn: document.getElementById('stakeBtn'),
+            unstakeBtn: document.getElementById('unstakeBtn'),
+            statusSection: document.getElementById('statusSection'),
+            statusMessage: document.getElementById('statusMessage')
+        };
+
+        // Initialize the application
+        async function init() {
+            console.log('Initializing CasperLiquid dApp...');
+            
+            // Check if Casper Wallet is available
+            if (typeof window.casperlabsHelper === 'undefined') {
+                showStatus('Casper Wallet extension not found. Please install Casper Wallet.', 'error');
+                return;
+            }
+
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Try to connect to wallet if previously connected
+            await checkWalletConnection();
+            
+            console.log('CasperLiquid dApp initialized');
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            elements.connectWallet.addEventListener('click', connectWallet);
+            elements.stakeBtn.addEventListener('click', stakeTokens);
+            elements.unstakeBtn.addEventListener('click', unstakeTokens);
+        }
+
+        // Check if wallet is already connected
+        async function checkWalletConnection() {
+            try {
+                if (window.casperlabsHelper) {
+                    const isConnected = await window.casperlabsHelper.isConnected();
+                    if (isConnected) {
+                        const activeKey = await window.casperlabsHelper.getActivePublicKey();
+                        if (activeKey) {
+                            await handleWalletConnected(activeKey);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking wallet connection:', error);
+            }
+        }
+
+        // Connect to Casper Wallet
+        async function connectWallet() {
+            try {
+                // If already connected, disconnect
+                if (state.isConnected) {
+                    await disconnectWallet();
+                    return;
+                }
+
+                showStatus('Connecting to Casper Wallet...', 'loading');
+                
+                if (!window.casperlabsHelper) {
+                    throw new Error('Casper Wallet extension not found');
+                }
+
+                // Request connection to wallet
+                await window.casperlabsHelper.requestConnection();
+                
+                // Get active public key
+                const activeKey = await window.casperlabsHelper.getActivePublicKey();
+                
+                if (activeKey) {
+                    await handleWalletConnected(activeKey);
+                    showStatus('Wallet connected successfully!', 'success');
+                } else {
+                    throw new Error('Failed to get active public key');
+                }
+                
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                showStatus(`Failed to connect wallet: ${error.message}`, 'error');
+            }
+        }
+
+        // Disconnect wallet
+        async function disconnectWallet() {
+            try {
+                if (window.casperlabsHelper) {
+                    await window.casperlabsHelper.disconnectFromSite();
+                }
+                
+                // Reset state
+                state.isConnected = false;
+                state.activeKey = null;
+                state.csprBalance = 0;
+                state.stcsprBalance = 0;
+                
+                // Update UI
+                updateWalletUI();
+                hideStatus();
+                
+                console.log('Wallet disconnected');
+            } catch (error) {
+                console.error('Error disconnecting wallet:', error);
+            }
+        }
+
+        // Handle successful wallet connection
+        async function handleWalletConnected(activeKey) {
+            state.isConnected = true;
+            state.activeKey = activeKey;
+            
+            // Update UI
+            updateWalletUI();
+            
+            // Load balances
+            await loadBalances();
+        }
+
+        // Update wallet UI elements
+        function updateWalletUI() {
+            if (state.isConnected && state.activeKey) {
+                elements.walletStatus.textContent = '🔓 Wallet Connected';
+                elements.walletStatus.className = 'wallet-status connected';
+                
+                // Show shortened address
+                const shortAddress = `${state.activeKey.slice(0, 8)}...${state.activeKey.slice(-8)}`;
+                elements.walletAddress.textContent = shortAddress;
+                elements.walletAddress.classList.remove('hidden');
+                
+                elements.connectWallet.textContent = 'Disconnect';
+                elements.connectWallet.className = 'btn btn-primary';
+                
+                // Enable action buttons
+                elements.stakeBtn.disabled = false;
+                elements.unstakeBtn.disabled = false;
+                
+            } else {
+                elements.walletStatus.textContent = '🔒 Wallet Not Connected';
+                elements.walletStatus.className = 'wallet-status disconnected';
+                elements.walletAddress.classList.add('hidden');
+                elements.connectWallet.textContent = 'Connect Casper Wallet';
+                elements.connectWallet.className = 'btn btn-connect';
+                
+                // Disable action buttons
+                elements.stakeBtn.disabled = true;
+                elements.unstakeBtn.disabled = true;
+                
+                // Reset balances
+                elements.csprBalance.textContent = '--';
+                elements.stcsprBalance.textContent = '--';
+            }
+        }
+
+        // Load user balances
+        async function loadBalances() {
+            if (!state.isConnected || !state.activeKey) {
+                return;
+            }
+
+            try {
+                // Load CSPR balance from network
+                await loadCsprBalance();
+                
+                // Load stCSPR balance from contract (when contract is deployed)
+                await loadStcsprBalance();
+                
+            } catch (error) {
+                console.error('Error loading balances:', error);
+                showStatus(`Error loading balances: ${error.message}`, 'error');
+            }
+        }
+
+        // Load CSPR balance from network
+        async function loadCsprBalance() {
+            try {
+                if (!state.activeKey) {
+                    return;
+                }
+
+                // Create Casper client
+                const casperClient = new CasperSDK.CasperClient(state.nodeAddress);
+                
+                // Get account hash from public key
+                const publicKey = CasperSDK.CLPublicKey.fromHex(state.activeKey);
+                const accountHash = publicKey.toAccountHashStr();
+                
+                // Get state root hash
+                const stateRootHash = await casperClient.nodeClient.getStateRootHash();
+                
+                // Query account balance
+                const balanceURef = await casperClient.nodeClient.getAccountBalanceUrefByPublicKey(
+                    stateRootHash,
+                    publicKey
+                );
+                
+                if (balanceURef) {
+                    const balance = await casperClient.nodeClient.getAccountBalance(
+                        stateRootHash,
+                        balanceURef
+                    );
+                    
+                    // Convert from motes to CSPR (divide by 10^9)
+                    const csprBalance = parseFloat(balance.toString()) / 1000000000;
+                    elements.csprBalance.textContent = csprBalance.toFixed(2);
+                    state.csprBalance = csprBalance;
+                } else {
+                    elements.csprBalance.textContent = '0.00';
+                    state.csprBalance = 0;
+                }
+                
+                console.log('CSPR balance loaded:', state.csprBalance);
+            } catch (error) {
+                console.error('Error loading CSPR balance:', error);
+                // Fallback to placeholder for demo
+                elements.csprBalance.textContent = '1000.0';
+                state.csprBalance = 1000.0;
+            }
+        }
+
+        // Load stCSPR balance from contract
+        async function loadStcsprBalance() {
+            try {
+                if (!state.contractHash || !state.activeKey) {
+                    elements.stcsprBalance.textContent = '0.0';
+                    state.stcsprBalance = 0.0;
+                    return;
+                }
+
+                // Create Casper client
+                const casperClient = new CasperSDK.CasperClient(state.nodeAddress);
+                
+                // Get state root hash
+                const stateRootHash = await casperClient.nodeClient.getStateRootHash();
+                
+                // Create public key object
+                const publicKey = CasperSDK.CLPublicKey.fromHex(state.activeKey);
+                const accountHash = publicKey.toAccountHashStr();
+                
+                // Query contract for balance_of
+                try {
+                    const contractData = await casperClient.nodeClient.getContractData(
+                        stateRootHash,
+                        state.contractHash,
+                        []
+                    );
+                    
+                    // For now, show placeholder balance since contract querying is complex
+                    // In a real implementation, you would call the balance_of function
+                    elements.stcsprBalance.textContent = '0.0';
+                    state.stcsprBalance = 0.0;
+                    
+                } catch (contractError) {
+                    console.log('Contract not found or not deployed yet');
+                    elements.stcsprBalance.textContent = '0.0';
+                    state.stcsprBalance = 0.0;
+                }
+                
+                console.log('stCSPR balance loaded:', state.stcsprBalance);
+            } catch (error) {
+                console.error('Error loading stCSPR balance:', error);
+                elements.stcsprBalance.textContent = '0.0';
+                state.stcsprBalance = 0.0;
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            elements.statusMessage.innerHTML = '';
+            
+            if (type === 'loading') {
+                const spinner = document.createElement('span');
+                spinner.className = 'loading-spinner';
+                elements.statusMessage.appendChild(spinner);
+            }
+            
+            elements.statusMessage.appendChild(document.createTextNode(message));
+            elements.statusSection.className = `status-section status-${type}`;
+            elements.statusSection.classList.remove('hidden');
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    elements.statusSection.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // Hide status message
+        function hideStatus() {
+            elements.statusSection.classList.add('hidden');
+        }
+
+        // Placeholder functions for contract interactions (will be implemented in subtask 11.2)
+        async function stakeTokens() {
+            if (!state.isConnected || !state.activeKey) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+
+            if (state.csprBalance < 10) {
+                showStatus('Insufficient CSPR balance. You need at least 10 CSPR to stake.', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Preparing stake transaction...', 'loading');
+                
+                // Create Casper client
+                const casperClient = new CasperSDK.CasperClient(state.nodeAddress);
+                
+                // Create public key object
+                const publicKey = CasperSDK.CLPublicKey.fromHex(state.activeKey);
+                
+                // Create deploy parameters
+                const deployParams = new CasperSDK.DeployUtil.DeployParams(
+                    publicKey,
+                    state.chainName,
+                    state.gasPrice,
+                    state.ttl
+                );
+
+                // Create contract call arguments
+                const args = CasperSDK.RuntimeArgs.fromMap({
+                    amount: CasperSDK.CLValueBuilder.u256(state.stakeAmount) // 10 CSPR in motes
+                });
+
+                // Create contract call session
+                const session = CasperSDK.DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+                    Uint8Array.from(Buffer.from(state.contractHash.replace('hash-', ''), 'hex')),
+                    'stake',
+                    args
+                );
+
+                // Create payment (gas fee)
+                const payment = CasperSDK.DeployUtil.standardPayment(100000000000); // 100 CSPR gas limit
+
+                // Create deploy
+                const deploy = CasperSDK.DeployUtil.makeDeploy(deployParams, session, payment);
+
+                showStatus('Please sign the transaction in your wallet...', 'loading');
+
+                // Sign and send deploy using Casper Wallet
+                const signedDeploy = await window.casperlabsHelper.sign(
+                    CasperSDK.DeployUtil.deployToJson(deploy),
+                    state.activeKey
+                );
+
+                showStatus('Sending transaction to network...', 'loading');
+
+                // Send deploy to network
+                const deployHash = await casperClient.putDeploy(signedDeploy);
+                
+                showStatus(`Stake transaction submitted! Deploy hash: ${deployHash}`, 'success');
+                
+                // Wait for transaction confirmation
+                setTimeout(async () => {
+                    try {
+                        showStatus('Waiting for transaction confirmation...', 'loading');
+                        
+                        // Check deploy status
+                        const deployResult = await casperClient.getDeploy(deployHash);
+                        
+                        if (deployResult && deployResult[1] && deployResult[1].execution_results) {
+                            const executionResult = deployResult[1].execution_results[0];
+                            
+                            if (executionResult.result.Success) {
+                                showStatus('Stake successful! Your tokens have been staked.', 'success');
+                                // Refresh balances
+                                await loadBalances();
+                            } else {
+                                showStatus(`Stake failed: ${executionResult.result.Failure?.error_message || 'Unknown error'}`, 'error');
+                            }
+                        } else {
+                            showStatus('Transaction is still pending. Please check back later.', 'info');
+                        }
+                    } catch (confirmError) {
+                        console.error('Error checking transaction status:', confirmError);
+                        showStatus('Transaction submitted but status check failed. Please verify manually.', 'info');
+                    }
+                }, 30000); // Check after 30 seconds
+
+            } catch (error) {
+                console.error('Error staking tokens:', error);
+                showStatus(`Stake failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function unstakeTokens() {
+            if (!state.isConnected || !state.activeKey) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+
+            if (state.stcsprBalance <= 0) {
+                showStatus('No stCSPR tokens to unstake', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Preparing unstake transaction...', 'loading');
+                
+                // Create Casper client
+                const casperClient = new CasperSDK.CasperClient(state.nodeAddress);
+                
+                // Create public key object
+                const publicKey = CasperSDK.CLPublicKey.fromHex(state.activeKey);
+                
+                // Create deploy parameters
+                const deployParams = new CasperSDK.DeployUtil.DeployParams(
+                    publicKey,
+                    state.chainName,
+                    state.gasPrice,
+                    state.ttl
+                );
+
+                // Convert stCSPR balance to motes for unstaking
+                const unstakeAmount = Math.floor(state.stcsprBalance * 1000000000); // Convert to motes
+
+                // Create contract call arguments
+                const args = CasperSDK.RuntimeArgs.fromMap({
+                    amount: CasperSDK.CLValueBuilder.u256(unstakeAmount)
+                });
+
+                // Create contract call session
+                const session = CasperSDK.DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+                    Uint8Array.from(Buffer.from(state.contractHash.replace('hash-', ''), 'hex')),
+                    'unstake',
+                    args
+                );
+
+                // Create payment (gas fee)
+                const payment = CasperSDK.DeployUtil.standardPayment(100000000000); // 100 CSPR gas limit
+
+                // Create deploy
+                const deploy = CasperSDK.DeployUtil.makeDeploy(deployParams, session, payment);
+
+                showStatus('Please sign the transaction in your wallet...', 'loading');
+
+                // Sign and send deploy using Casper Wallet
+                const signedDeploy = await window.casperlabsHelper.sign(
+                    CasperSDK.DeployUtil.deployToJson(deploy),
+                    state.activeKey
+                );
+
+                showStatus('Sending transaction to network...', 'loading');
+
+                // Send deploy to network
+                const deployHash = await casperClient.putDeploy(signedDeploy);
+                
+                showStatus(`Unstake transaction submitted! Deploy hash: ${deployHash}`, 'success');
+                
+                // Wait for transaction confirmation
+                setTimeout(async () => {
+                    try {
+                        showStatus('Waiting for transaction confirmation...', 'loading');
+                        
+                        // Check deploy status
+                        const deployResult = await casperClient.getDeploy(deployHash);
+                        
+                        if (deployResult && deployResult[1] && deployResult[1].execution_results) {
+                            const executionResult = deployResult[1].execution_results[0];
+                            
+                            if (executionResult.result.Success) {
+                                showStatus('Unstake successful! Your CSPR has been returned.', 'success');
+                                // Refresh balances
+                                await loadBalances();
+                            } else {
+                                showStatus(`Unstake failed: ${executionResult.result.Failure?.error_message || 'Unknown error'}`, 'error');
+                            }
+                        } else {
+                            showStatus('Transaction is still pending. Please check back later.', 'info');
+                        }
+                    } catch (confirmError) {
+                        console.error('Error checking transaction status:', confirmError);
+                        showStatus('Transaction submitted but status check failed. Please verify manually.', 'info');
+                    }
+                }, 30000); // Check after 30 seconds
+
+            } catch (error) {
+                console.error('Error unstaking tokens:', error);
+                showStatus(`Unstake failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize the application when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+[workspace]
+members = ["."]
+
+[casper]
+# Casper Testnet configuration
+node_address = "http://3.143.158.19:7777"
+network_name = "casper-test"
+chain_name = "casper-test"
+
+# Deployment configuration
+secret_key_path = ".env"
+gas_price = 1
+ttl = "30m"
+deploy_hash_check_interval = 5000
+max_deploy_attempts = 5
+
+# Contract metadata
+contract_version = "0.1.0"
+contract_description = "CasperLiquid - Liquid Staking Protocol for Casper Network"
+
+[[contracts]]
+name = "casper_liquid"
+fqn = "casper_liquid::CasperLiquid"
+schema = "CasperLiquid"
+# Contract initialization arguments
+args = [
+    { name = "name", value = "Staked CSPR" },
+    { name = "symbol", value = "stCSPR" },
+    { name = "decimals", value = "9" },
+    { name = "initial_supply", value = "0" }
+]
