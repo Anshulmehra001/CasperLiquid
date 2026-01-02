@@ -1,6 +1,5 @@
 use std::env;
 use std::process;
-use casper_liquid::CasperLiquid;
 
 fn main() {
     println!("🚀 CasperLiquid Deployment Script");

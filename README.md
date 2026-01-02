@@ -1,163 +1,160 @@
-# CasperLiquid
+# CasperLiquid 🌊
 
 A liquid staking protocol for the Casper Network built with the Odra Framework.
 
-## Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Casper Network](https://img.shields.io/badge/Casper-Network-red)](https://casper.network/)
 
-CasperLiquid allows users to stake CSPR tokens and receive liquid staking tokens (stCSPR) at a 1:1 ratio, enabling staking rewards while maintaining liquidity.
+## 🚀 Overview
 
-## Features
+CasperLiquid enables users to stake CSPR tokens and receive liquid staking tokens (stCSPR) at a 1:1 ratio, allowing them to earn staking rewards while maintaining liquidity for DeFi activities.
 
-- Stake CSPR tokens and receive stCSPR tokens (1:1 ratio)
-- Unstake stCSPR tokens to get CSPR back
-- CEP-18 compliant token standard
-- Web interface for easy interaction
-- Deployed on Casper Testnet
+### Key Features
 
-## Project Structure
+- **🔄 Liquid Staking**: Stake CSPR and receive stCSPR tokens (1:1 ratio)
+- **⚡ Instant Unstaking**: Convert stCSPR back to CSPR anytime
+- **🪙 CEP-18 Compliant**: Full compatibility with Casper wallets and DEXs
+- **🌐 Web Interface**: User-friendly frontend with Casper Wallet integration
+- **🔒 Security First**: Comprehensive testing and security measures
+- **📱 Mobile Ready**: Responsive design for all devices
 
-```
-casper-liquid/
-├── src/
-│   └── lib.rs          # Main contract implementation
-├── bin/
-│   └── main.rs         # Deployment binary
-├── scripts/
-│   ├── deploy.sh       # Unix deployment script
-│   └── deploy.ps1      # PowerShell deployment script
-├── Cargo.toml          # Rust dependencies
-├── Odra.toml          # Odra configuration
-├── .env.example       # Environment template
-├── DEPLOYMENT.md      # Detailed deployment guide
-└── README.md          # This file
-```
+## 🏗️ Architecture
 
-## Quick Start
+### Smart Contract
+- **Framework**: Odra (Rust-based smart contracts for Casper)
+- **Token Standard**: CEP-18 compliant stCSPR tokens
+- **Security**: Reentrancy protection, input validation, atomic operations
 
-### 1. Setup Environment
+### Frontend
+- **Technology**: HTML/JavaScript with Casper JS SDK
+- **Wallet**: Seamless Casper Wallet integration
+- **Features**: Real-time balance updates, transaction status tracking
 
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit .env and set your SECRET_KEY
-# Get your secret key from Casper Wallet or generate with:
-# casper-client keygen ./keys/
-```
-
-### 2. Verify Configuration
-
-```bash
-# Using the deployment binary
-cargo run -- verify
-
-# Or using PowerShell script (Windows)
-.\scripts\deploy.ps1 -Verify
-
-# Or using bash script (Unix/Linux/macOS)
-./scripts/deploy.sh
-```
-
-### 3. Deploy to Testnet
-
-```bash
-# Using Odra directly
-cargo odra deploy --network casper-test
-
-# Or using the deployment binary
-cargo run -- deploy
-
-# Or using PowerShell script (Windows)
-.\scripts\deploy.ps1
-
-# Or using bash script (Unix/Linux/macOS)
-./scripts/deploy.sh
-```
-
-## Development
+## 🛠️ Quick Start
 
 ### Prerequisites
 
-- Rust 1.70+
-- Odra Framework
-- Casper Wallet for testing
-- Testnet CSPR tokens (get from [faucet](https://testnet.cspr.live/tools/faucet))
+- [Rust](https://rustup.rs/) 1.70+
+- [Odra Framework](https://odra.dev/)
+- [Casper Wallet](https://www.casperwallet.io/)
+- Testnet CSPR tokens from [faucet](https://testnet.cspr.live/tools/faucet)
 
-### Building
+### Installation
 
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Anshulmehra001/CasperLiquid.git
+   cd CasperLiquid
+   ```
+
+2. **Setup environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your SECRET_KEY
+   ```
+
+3. **Build the project**
+   ```bash
+   cargo build --release
+   ```
+
+### Deployment
+
+#### Option 1: Using Odra CLI
 ```bash
-cargo build --release
+cargo odra deploy --network casper-test
 ```
 
-### Testing
-
+#### Option 2: Using deployment scripts
 ```bash
-# Run all tests
-cargo test
+# Windows PowerShell
+.\scripts\deploy.ps1
 
-# Run property-based tests
-cargo test --features proptest
-
-# Run specific test
-cargo test test_stake_functionality
+# Unix/Linux/macOS
+./scripts/deploy.sh
 ```
 
-### Local Development
-
+#### Option 3: Using deployment binary
 ```bash
-# Build and run deployment tool
-cargo run -- help
-
-# Verify configuration
-cargo run -- verify
-
-# Deploy to testnet
 cargo run -- deploy
 ```
 
-## Deployment
+## 📋 Contract Functions
 
-For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
-
-### Quick Deployment
-
-1. **Setup**: Copy `.env.example` to `.env` and configure your `SECRET_KEY`
-2. **Verify**: Run `cargo run -- verify` to check configuration
-3. **Deploy**: Run `cargo run -- deploy` or `cargo odra deploy --network casper-test`
-4. **Save**: Record the contract hash for frontend integration
-
-### Deployment Scripts
-
-- **PowerShell** (Windows): `.\scripts\deploy.ps1`
-- **Bash** (Unix/Linux/macOS): `./scripts/deploy.sh`
-- **Rust Binary**: `cargo run -- deploy`
-- **Direct Odra**: `cargo odra deploy --network casper-test`
-
-## Usage
-
-The contract provides the following main functions:
-
-### Core Functions
-- `stake(amount)` - Stake CSPR tokens and receive stCSPR
-- `unstake(amount)` - Burn stCSPR tokens and receive CSPR
-- `total_supply()` - Get total amount of stCSPR in circulation
+### Core Staking Functions
+```rust
+pub fn stake(&mut self, amount: U256) -> Result<(), Error>
+pub fn unstake(&mut self, amount: U256) -> Result<(), Error>
+pub fn total_supply(&self) -> U256
+```
 
 ### CEP-18 Token Functions
-- `balance_of(address)` - Check stCSPR token balance
-- `transfer(recipient, amount)` - Transfer stCSPR tokens
-- `approve(spender, amount)` - Approve spending allowance
-- `transfer_from(owner, recipient, amount)` - Transfer on behalf
-- `allowance(owner, spender)` - Check spending allowance
+```rust
+pub fn balance_of(&self, owner: Address) -> U256
+pub fn transfer(&mut self, recipient: Address, amount: U256) -> Result<(), Error>
+pub fn approve(&mut self, spender: Address, amount: U256) -> Result<(), Error>
+pub fn transfer_from(&mut self, owner: Address, recipient: Address, amount: U256) -> Result<(), Error>
+pub fn allowance(&self, owner: Address, spender: Address) -> U256
+```
 
 ### Metadata Functions
-- `name()` - Returns "Staked CSPR"
-- `symbol()` - Returns "stCSPR"
-- `decimals()` - Returns 9 (matching CSPR)
+```rust
+pub fn name(&self) -> String        // "Staked CSPR"
+pub fn symbol(&self) -> String      // "stCSPR"
+pub fn decimals(&self) -> u8        // 9 (matching CSPR)
+```
 
-## Configuration
+## 🧪 Testing
+
+Run the comprehensive test suite:
+
+```bash
+# All tests
+cargo test
+
+# Unit tests only
+cargo test --lib
+
+# Integration tests only
+cargo test --test integration_tests
+
+# Frontend integration tests
+cargo test --test frontend_integration_tests
+```
+
+### Test Coverage
+- ✅ Unit tests for all contract functions
+- ✅ Integration tests for end-to-end workflows
+- ✅ Frontend integration tests
+- ✅ Property-based testing for correctness validation
+
+## 🌐 Frontend Usage
+
+1. **Open the web interface**
+   ```bash
+   # Serve the frontend (after contract deployment)
+   python -m http.server 8000
+   # Open http://localhost:8000 in your browser
+   ```
+
+2. **Connect your Casper Wallet**
+   - Click "Connect Wallet" button
+   - Approve the connection in Casper Wallet
+
+3. **Stake CSPR tokens**
+   - Click "Stake 10 CSPR" to stake tokens
+   - Confirm the transaction in your wallet
+   - Receive stCSPR tokens instantly
+
+4. **Unstake tokens**
+   - Click "Unstake All" to convert stCSPR back to CSPR
+   - Confirm the transaction
+   - Receive CSPR tokens immediately
+
+## ⚙️ Configuration
 
 ### Environment Variables (.env)
-
 ```bash
 # Required
 SECRET_KEY=your_secret_key_here
@@ -170,37 +167,86 @@ GAS_PRICE=1
 TTL=30m
 ```
 
-### Odra Configuration (Odra.toml)
+### Network Configuration
+- **Target**: Casper Testnet
+- **Node**: http://3.143.158.19:7777
+- **Chain**: casper-test
 
-The contract is configured with:
-- **Network**: Casper Testnet
-- **Gas Price**: 1 mote
-- **TTL**: 30 minutes
-- **Initial Supply**: 0 stCSPR tokens
+## 🔐 Security Features
 
-## Security
+- **Input Validation**: All user inputs are validated before processing
+- **Reentrancy Protection**: Follows checks-effects-interactions pattern
+- **Atomic Operations**: State changes are atomic or not at all
+- **Overflow Protection**: Safe arithmetic operations throughout
+- **Access Control**: Proper permission handling for all functions
 
-- **Testnet Only**: This configuration is for testnet deployment
-- **Private Keys**: Never commit `.env` file or share secret keys
-- **Input Validation**: All user inputs are validated
-- **Atomic Operations**: State changes are atomic
-- **Reentrancy Protection**: Contract follows checks-effects-interactions pattern
+## 📁 Project Structure
 
-## Troubleshooting
+```
+casper-liquid/
+├── src/
+│   └── lib.rs              # Main contract implementation
+├── bin/
+│   └── main.rs             # Deployment binary
+├── tests/
+│   ├── integration_tests.rs         # Contract integration tests
+│   └── frontend_integration_tests.rs # Frontend integration tests
+├── scripts/
+│   ├── deploy.sh           # Unix deployment script
+│   └── deploy.ps1          # PowerShell deployment script
+├── index.html              # Frontend web interface
+├── Cargo.toml              # Rust dependencies
+├── Odra.toml              # Odra configuration
+├── .env.example           # Environment template
+├── DEPLOYMENT.md          # Detailed deployment guide
+└── README.md              # This file
+```
+
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-1. **"SECRET_KEY not found"**: Copy `.env.example` to `.env` and set your key
-2. **"Insufficient funds"**: Get testnet CSPR from the [faucet](https://testnet.cspr.live/tools/faucet)
-3. **"Node connection failed"**: Check node address in `.env`
-4. **"Odra not found"**: Install Odra CLI tools from [odra.dev](https://odra.dev)
+**"SECRET_KEY not found"**
+```bash
+cp .env.example .env
+# Edit .env and add your secret key
+```
 
-### Getting Help
+**"Insufficient funds"**
+- Get testnet CSPR from the [faucet](https://testnet.cspr.live/tools/faucet)
 
-- Check [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment guide
-- Visit [Odra Documentation](https://odra.dev) for framework help
-- See [Casper Documentation](https://docs.casper.network) for network info
+**"Node connection failed"**
+- Check `NODE_ADDRESS` in your `.env` file
+- Ensure the Casper testnet node is accessible
 
-## License
+**"Odra not found"**
+- Install Odra CLI tools: `cargo install odra-cli`
 
-MIT License
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📚 Resources
+
+- [Odra Framework Documentation](https://odra.dev/)
+- [Casper Network Documentation](https://docs.casper.network/)
+- [CEP-18 Token Standard](https://github.com/casper-network/ceps/blob/master/text/0018-token-standard.md)
+- [Casper Testnet Faucet](https://testnet.cspr.live/tools/faucet)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Odra Framework](https://odra.dev/)
+- Powered by [Casper Network](https://casper.network/)
+- Inspired by the DeFi ecosystem
+
+---
+
+**Ready to stake with liquidity? Try CasperLiquid today!** 🚀
